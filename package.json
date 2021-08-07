@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "ts-node": "ts-node ./index.ts"
+  },
+  "name": "node_app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^12.20.19",
+    "typescript": "^4.3.5"
+  }
+}
