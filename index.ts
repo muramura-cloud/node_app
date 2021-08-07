@@ -1,11 +1,11 @@
-const http = require('http');
+import http, { IncomingMessage, ServerResponse } from "http";
+import { getFromClient } from "./functions";
 
-var server = http.createServer(
-    (request, response) => {
-        response.end('hello world.');
-    }
-);
+// HTTPサーバーを立てる
+const server = http.createServer(getFromClient);
 
+// 4000番ポートでサーバー起動
 server.listen(3000);
+console.log('server start!');
 
 
