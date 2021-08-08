@@ -1,4 +1,4 @@
-import http, { IncomingMessage, ServerResponse } from "http";
+import http from "http";
 import { getFromClient } from "./functions";
 
 // HTTPサーバーを立てる

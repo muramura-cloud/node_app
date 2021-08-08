@@ -2,39 +2,26 @@ import { IncomingMessage, ServerResponse } from 'http';
 import fs from "fs";
 const url = require('url');
 const ejs = require('ejs');
+const qs = require('querystring');
 
 const index_page = fs.readFileSync('./index.ejs', 'UTF-8');
 const other_page = fs.readFileSync('./other.ejs', 'UTF-8');
 const style = fs.readFileSync('./style.css', 'UTF-8');
 
+var data = { msg: 'no message...' };
+
 export function getFromClient(request: IncomingMessage, response: ServerResponse) {
-    var url_parts = url.parse(request.url, true);
+    const url_parts = url.parse(request.url, true);
 
     console.log(url_parts);
 
     switch (url_parts.pathname) {
         case '/':
-            let content = 'これはIndexのpageです。';
-            if (url_parts.query != undefined) {
-                content += 'あなたは' + url_parts.query.msg + 'と送りました。';
-            }
-            var write_content = ejs.render(index_page, {
-                title: 'Index',
-                content: content
-            });
-            response.writeHead(200, { 'Content-Type': 'text/html' });
-            response.write(write_content);
-            response.end();
+            response_index(request, response);
             break;
 
         case '/other.ejs':
-            // let content = ejs.render(other_page, {
-            //     title: 'Other',
-            //     content: 'これはEJSを使ったページです。'
-            // });
-            response.writeHead(200, { 'Content-Type': 'text/html' });
-            response.write('no page');
-            response.end();
+            response_other(request, response);
             break;
 
         case '/style.css':
@@ -48,4 +35,68 @@ export function getFromClient(request: IncomingMessage, response: ServerResponse
             response.end('no page...');
             response.end();
     }
+}
+
+function response_index(request: IncomingMessage, response: ServerResponse) {
+    let msg = 'これはIndexのページです。';
+
+    if (request.method === "POST") {
+        let body = '';
+        request.on('data', (data) => {
+            body += data;
+        });
+
+        request.on('end', () => {
+            data = qs.parse(body);
+            write_index(request, response);
+        });
+    } else {
+        write_index(request, response);
+    }
+}
+
+function response_other(request: IncomingMessage, response: ServerResponse) {
+    let msg = 'これはOtherのページです。';
+
+    if (request.method == "POST") {
+        let body = '';
+        request.on('data', (data) => {
+            body += data;
+        });
+
+        request.on('end', () => {
+            let post_data = qs.parse(body);
+            msg += 'あなたは' + post_data.msg + 'と送信しました。';
+            let content = ejs.render(other_page, {
+                title: 'other',
+                content: msg
+            });
+            response.writeHead(200, { 'Content-Type': 'text/html' });
+            response.write(content);
+            response.end();
+        });
+    } else {
+        let msg = 'メッセージがありません。';
+        let content = ejs.render(other_page, {
+            title: 'other',
+            content: msg
+        });
+        response.writeHead(200, { 'Content-Type': 'text/html' });
+        response.write(content);
+        response.end();
+    }
+
+}
+
+function write_index(request: IncomingMessage, response: ServerResponse) {
+    let msg = '伝言を表示します。';
+    let content = ejs.render(index_page, {
+        filename: './index.ejs',
+        title: 'index',
+        content: msg,
+        data: data,
+    });
+    response.writeHead(200, { 'Content-Type': 'text/html' });
+    response.write(content);
+    response.end();
 }
