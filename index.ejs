@@ -5,37 +5,40 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>
-            <%=title %>
-        </title>
+        <title>メッセージボード</title>
         <link rel="stylesheet" href="./style.css" type="text/css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
             integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+        <script>
+            function init() {
+                let id = localStorage.getItem('id');
+                if (id === null) {
+                    location.href = './login.ejs';
+                }
+                document.querySelector('#id').textContent = 'ID:' + id;
+                document.querySelector('#id_input').value = id;
+            }
+        </script>
     </head>
 
-    <body class="container">
+    <body class="container" onload="init();">
         <header>
-            <h1 class="display-4">
-                <%=title %>
-            </h1>
+            <h1 class="display-4">メッセージボード</h1>
         </header>
-        <div>
-            <p>
-                <%=content %>
-            </p>
-            <table class="table">
-                <tr>
-                    <th>伝言です</th>
-                </tr>
-                <tr>
-                    <td><%= data.msg %> </td>
-                </tr>
-            </table>
+        <div role="main">
+            <p>メッセージは最大10個まで保存されます。</p>
             <form method="post" action="/">
+                <p id="id"></p>
+                <input type="hidden" id="id_input" name="id">
                 <input type="text" name="msg" class="form-control"><br>
                 <input type="submit" value="click" class="btn btn-primary">
             </form>
-        </div>        
+            <table class="table">
+                <% for (let i in data) { %>
+                    <%- include('./_partial/data_item.ejs',{val:data[i]}) %>
+                        <% } %>
+            </table>
+        </div>
     </body>
 
 </html>
